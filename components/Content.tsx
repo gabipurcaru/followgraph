@@ -4,6 +4,7 @@ import sanitizeHtml from 'sanitize-html';
 type AccountDetails = {
   id: string, // IMPORTANT: this is int64 so will overflow Javascript's number type
   acct: string,
+  followed_by: [string], // list of handles
 };
 
 async function usernameToId(handle: string): Promise<{ id: number, domain: string }> {
@@ -18,7 +19,7 @@ async function usernameToId(handle: string): Promise<{ id: number, domain: strin
   return { id, domain };
 }
 
-function getDomain(handle) {
+function getDomain(handle: string) {
   const match = handle.match(/^(.+)@(.+)$/);
   if (!match || match.length < 2) {
     throw new Error(`Incorrect handle: ${handle}`);
@@ -28,14 +29,14 @@ function getDomain(handle) {
 }
 
 async function accountFollows(handle: string): Promise<Array<AccountDetails>> {
-  let id, domain;
+  let id, domain: string;
   try {
     ({ id, domain } = await usernameToId(handle));
   } catch (e) {
     return [];
   }
 
-  let nextPage: string | undefined = `https://${domain}/api/v1/accounts/${id}/following`;
+  let nextPage: string | null = `https://${domain}/api/v1/accounts/${id}/following`;
   let data: Array<AccountDetails> = [];
   while (nextPage && data.length <= 50) {
     console.log(`Get page: ${nextPage}`);
@@ -51,7 +52,7 @@ async function accountFollows(handle: string): Promise<Array<AccountDetails>> {
     if (!page.map) {
       break;
     }
-    page = page.map(entry => {
+    page = page.map((entry: AccountDetails) => {
       if (entry.acct && !/@/.test(entry.acct)) {
         // make sure the domain is always there
         entry.acct = `${entry.acct}@${domain}`;
@@ -64,7 +65,7 @@ async function accountFollows(handle: string): Promise<Array<AccountDetails>> {
   return data;
 }
 
-async function accountFofs(handle: string, setProgress): Promise<Array<AccountDetails>> {
+async function accountFofs(handle: string, setProgress: (x: Array<number>) => void): Promise<Array<AccountDetails>> {
   console.log('Start');
   const directFollows = await accountFollows(handle);
   setProgress([0, directFollows.length]);
@@ -81,7 +82,7 @@ async function accountFofs(handle: string, setProgress): Promise<Array<AccountDe
     ),
   );
 
-  let indirectFollows = [].concat([], ...indirectFollowLists);
+  let indirectFollows: Array<AccountDetails> = [].concat([], ...indirectFollowLists);
   const indirectFollowMap = new Map();
   
   const directFollowIds = new Set(directFollows.map(({ acct }) => acct));
@@ -106,9 +107,9 @@ async function accountFofs(handle: string, setProgress): Promise<Array<AccountDe
   });
 }
 
-function getNextPage(linkHeader: string | undefined): string | undefined {
+function getNextPage(linkHeader: string | null): string | null {
   if (!linkHeader) {
-    return undefined;
+    return null;
   }
   // Example header:
   // Link: <https://mastodon.example/api/v1/accounts/1/follows?limit=2&max_id=7628164>; rel="next", <https://mastodon.example/api/v1/accounts/1/follows?limit=2&since_id=7628165>; rel="prev"
@@ -116,7 +117,7 @@ function getNextPage(linkHeader: string | undefined): string | undefined {
   if (match && match.length > 0) {
     return match[1];
   }
-  return undefined;
+  return null;
 }
 
 export function Content({ }) {
@@ -142,7 +143,11 @@ export function Content({ }) {
 
   return <section className="bg-gray-50 dark:bg-gray-800" id="searchForm">
     <div className="px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6">
-      <form onSubmit={() => search(handle)}>
+      <form onSubmit={e => {
+        search(handle);
+        e.preventDefault();
+        return false;
+      }}>
         <div className="form-group mb-6  text-4xl ml-8">
           <label htmlFor="mastodonHandle" className="form-label inline-block mb-2 text-gray-700">Your Mastodon handle:</label>
           <input type="text" value={handle} onChange={e => setHandle(e.target.value)} className="form-control
@@ -193,13 +198,15 @@ export function Content({ }) {
       </form>
     
       
-    {isDone ?
-          <div className="w-9/12 px-8 py-4 bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
+      {isDone ?
+        <div className="flex items-center justify-center">
+          <div className="max-w-4xl content-center px-8 py-4 bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
             <div className="flow-root">
               <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-700">
                 {follows.slice(0, 100).map(account => <AccountDetails key={account.acct} account={account} mainDomain={domain} />)}
               </ul>
             </div>
+          </div>
           </div>
         : null}
       </div>
