@@ -201,7 +201,7 @@ export function Content({ }) {
     
       
       {isDone ?
-        <div className="flex items-center justify-center">
+        <div className="flex-col lg:flex items-center justify-center">
           <div className="max-w-4xl content-center px-8 py-4 bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
             <div className="flow-root">
               <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -223,9 +223,9 @@ function AccountDetails({ account, mainDomain }) {
   
   return (
     <li className="py-3 sm:py-4">
-      <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row items-center space-x-4">
         <div className="flex-shrink-0">
-          <img className="w-8 h-8 rounded-full" src={avatar_static} alt={display_name} />
+          <img className="w-16 h-16 sm:w-8 sm:h-8 rounded-full" src={avatar_static} alt={display_name} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
@@ -244,7 +244,7 @@ function AccountDetails({ account, mainDomain }) {
             ))}
           </small>
         </div>
-        <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+        <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white my-4 sm:my-0">
           <a href={`https://${mainDomain}/@${acct}`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Follow
           </a>
