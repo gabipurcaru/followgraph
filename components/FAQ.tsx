@@ -23,6 +23,10 @@ export function FAQ({ }) {
           <FAQItem title="How can I contribute with suggestions?">
             Click the &quot;Fork me on Github&quot; link on the top right, and open up an issue.
           </FAQItem>
+
+          <FAQItem title="Why is this not a core Mastodon feature?">
+            Well, maybe it should be. In the meantime, you can use this website.
+          </FAQItem>
         </div>
       </div>
     </div>
