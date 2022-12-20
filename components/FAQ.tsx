@@ -20,6 +20,11 @@ export function FAQ({ }) {
             made to Mastodon time out. This is not a problem, because the rest of the queries will work as expected.
           </FAQItem>
 
+          <FAQItem title="Why don't I see any results?">
+            This tool only works if your list of follows is public. If you&apos;ve opted to hide your social graph, you will not see
+            any results here.
+          </FAQItem>
+
           <FAQItem title="How can I contribute with suggestions?">
             Click the &quot;Fork me on Github&quot; link on the top right, and open up an issue.
           </FAQItem>
