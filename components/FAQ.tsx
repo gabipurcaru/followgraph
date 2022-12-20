@@ -29,7 +29,7 @@ export function FAQ({ }) {
   </section>;
 }
 
-function FAQItem({ defaultSelected, title, children }) {
+function FAQItem({ defaultSelected, title, children }: { defaultSelected?: boolean, title: string, children: React.ReactNode}) {
   const [selected, setSelected] = useState(defaultSelected);
   return (<>
     <h3 id="accordion-flush-heading-1">

@@ -4,7 +4,7 @@ import sanitizeHtml from 'sanitize-html';
 type AccountDetails = {
   id: string, // IMPORTANT: this is int64 so will overflow Javascript's number type
   acct: string,
-  followed_by: [string], // list of handles
+  followed_by: Array<string>, // list of handles
 };
 
 async function usernameToId(handle: string): Promise<{ id: number, domain: string }> {
@@ -125,8 +125,8 @@ export function Content({ }) {
   const [follows, setfollows] = useState<Array<AccountDetails>>([]);
   const [isLoading, setLoading] = useState(false);
   const [isDone, setDone] = useState(false);
-  const [domain, setDomain] = useState();
-  const [[numLoaded, totalToLoad], setProgress] = useState([0, 0]);
+  const [domain, setDomain] = useState<string>("");
+  const [[numLoaded, totalToLoad], setProgress] = useState<Array<number>>([0, 0]);
 
   console.log(follows.length);
 
