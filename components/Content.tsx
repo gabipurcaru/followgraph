@@ -202,7 +202,7 @@ export function Content({ }) {
       
       {isDone ?
         <div className="flex-col lg:flex items-center justify-center">
-          <div className="max-w-4xl content-center px-8 py-4 bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
+          <div className="max-w-4xl content-center px-2 sm:px-8 py-4 bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
             <div className="flow-root">
               <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-700">
                 {follows.slice(0, 100).map(account => <AccountDetails key={account.acct} account={account} mainDomain={domain} />)}
