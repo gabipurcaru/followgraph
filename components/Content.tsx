@@ -86,6 +86,7 @@ async function accountFofs(handle: string, setProgress: (x: Array<number>) => vo
   const indirectFollowMap = new Map();
   
   const directFollowIds = new Set(directFollows.map(({ acct }) => acct));
+  directFollowIds.add(handle.replace(/^@/, ''));
 
   indirectFollows.filter(
     // exclude direct follows
@@ -218,7 +219,7 @@ export function Content({ }) {
 function AccountDetails({ account, mainDomain }) {
   const { avatar_static, display_name, acct, note, followers_count, followed_by } = account;
   let formatter = Intl.NumberFormat('en', { notation: 'compact' });
-  let numfollows = formatter.format(followers_count);
+  let numFollowers = formatter.format(followers_count);
   console.log(account);
   
   return (
@@ -232,7 +233,7 @@ function AccountDetails({ account, mainDomain }) {
             {display_name}
           </p>
           <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-            {acct} | {numfollows} follows
+            {acct} | {numFollowers} followers
           </p>
           <br />
           <small className="text-sm dark:text-gray-200" dangerouslySetInnerHTML={{ __html: sanitizeHtml(note) }}></small>
