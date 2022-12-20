@@ -195,7 +195,7 @@ export function Content({ }) {
           </button>
           
       {isLoading ?
-        <p className="text-sm dark:text-gray-400">Loaded {numLoaded} from {totalToLoad}...</p>
+        <p className="text-sm dark:text-gray-400">Loaded {numLoaded} of {totalToLoad}...</p>
       : null}
         </div>
       </form>
