@@ -148,8 +148,8 @@ export function Content({ }) {
         e.preventDefault();
         return false;
       }}>
-        <div className="form-group mb-6  text-4xl ml-8">
-          <label htmlFor="mastodonHandle" className="form-label inline-block mb-2 text-gray-700">Your Mastodon handle:</label>
+        <div className="form-group mb-6  text-4xl lg:ml-16">
+          <label htmlFor="mastodonHandle" className="form-label inline-block mb-2 text-gray-700 dark:text-gray-200">Your Mastodon handle:</label>
           <input type="text" value={handle} onChange={e => setHandle(e.target.value)} className="form-control
         block
         w-80
@@ -164,9 +164,11 @@ export function Content({ }) {
         transition
         ease-in-out
         m-0
-        focus:text-gray-700 focus:bg-white focus:border-green-600 focus:outline-none" id="mastodonHandle"
+        focus:text-gray-900 focus:bg-white focus:border-green-600 focus:outline-none
+        dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-gray-200 dark:focus:bg-gray-900 dark:focus:text-gray-200
+        " id="mastodonHandle"
             aria-describedby="mastodonHandleHelp" placeholder="johnmastodon@mas.to" />
-          <small id="mastodonHandleHelp" className="block mt-1 text-xs text-gray-600">Be sure to include the full handle, including the domain.</small>
+          <small id="mastodonHandleHelp" className="block mt-1 text-xs text-gray-600 dark:text-gray-300">Be sure to include the full handle, including the domain.</small>
         
         <button type="submit" className="
       px-6
@@ -192,7 +194,7 @@ export function Content({ }) {
           </button>
           
       {isLoading ?
-        <p className="text-sm">Loaded {numLoaded} from {totalToLoad}...</p>
+        <p className="text-sm dark:text-gray-400">Loaded {numLoaded} from {totalToLoad}...</p>
       : null}
         </div>
       </form>
@@ -233,9 +235,9 @@ function AccountDetails({ account, mainDomain }) {
             {acct} | {numfollows} follows
           </p>
           <br />
-          <small className="text-sm" dangerouslySetInnerHTML={{ __html: sanitizeHtml(note) }}></small>
+          <small className="text-sm dark:text-gray-200" dangerouslySetInnerHTML={{ __html: sanitizeHtml(note) }}></small>
           <br />
-          <small className="text-xs text-gray-800">
+          <small className="text-xs text-gray-800 dark:text-gray-400">
             Followed by{' '}
             {followed_by.map((handle, idx) => (
               <><span className="font-semibold">{handle.replace(/@.+/, '')}</span>{idx === followed_by.length - 1 ? '' : ', '}</>
