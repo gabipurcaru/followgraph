@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Mastodon Followgraph</title>
+        <title>Followgraph for Mastodon</title>
         <meta name="description" content="Find people to follow by expanding your follow graph." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -17,11 +17,11 @@ export default function Home() {
       <div>
         <Header />
         <Hero />
-       <Content     />
+        <Content />
+        <FAQ />
 
-        <FAQ     />
-
-        <Footer /></div>
+        <Footer />
+      </div>
     </>
   )
 }
