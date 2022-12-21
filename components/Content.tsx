@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import sanitizeHtml from 'sanitize-html';
+import debounce from 'debounce'
+import { updateCommaList } from "typescript";
 
 type AccountDetails = {
   id: string, // IMPORTANT: this is int64 so will overflow Javascript's number type
@@ -65,47 +67,55 @@ async function accountFollows(handle: string, limit: number = 200): Promise<Arra
   return data;
 }
 
-async function accountFofs(handle: string, setProgress: (x: Array<number>) => void): Promise<Array<AccountDetails>> {
-  console.log('Start');
+async function accountFofs(handle: string, setProgress: (x: Array<number>) => void, setFollows: (x: Array<AccountDetails>) => void): Promise<void> {
   const directFollows = await accountFollows(handle, 2000);
   setProgress([0, directFollows.length]);
-  console.log(`Direct follows: ${directFollows.length}`);
   let progress = 0;
-  const indirectFollowLists = await Promise.all(
+
+  const directFollowIds = new Set(directFollows.map(({ acct }) => acct));
+  directFollowIds.add(handle.replace(/^@/, ''));
+
+  const indirectFollowLists: Array<Array<AccountDetails>> = [];
+
+  const updateList = debounce(() => {
+    let indirectFollows: Array<AccountDetails> = [].concat([], ...indirectFollowLists);
+    const indirectFollowMap = new Map();
+
+    indirectFollows.filter(
+      // exclude direct follows
+      ({ acct }) => !directFollowIds.has(acct)
+    ).map(account => {
+      const acct = account.acct;
+      if (indirectFollowMap.has(acct)) {
+        const otherAccount = indirectFollowMap.get(acct);
+        account.followed_by = [...account.followed_by, ...otherAccount.followed_by];
+      }
+      indirectFollowMap.set(acct, account);
+    });
+
+    const list = Array.from(indirectFollowMap.values()).sort((a, b) => {
+      if (a.followed_by.length != b.followed_by.length) {
+        return b.followed_by.length - a.followed_by.length;
+      }
+      return b.followers_count - a.followers_count;
+    });
+
+    setFollows(list);
+  }, 2000);
+
+  await Promise.all(
     directFollows.map(
       async ({ acct }) => {
         const follows = await accountFollows(acct);
         progress++;
         setProgress([progress, directFollows.length]);
-        return follows.map(account => ({...account, followed_by: [acct]}));
+        indirectFollowLists.push(follows.map(account => ({ ...account, followed_by: [acct] })));
+        updateList();
       }
     ),
   );
 
-  let indirectFollows: Array<AccountDetails> = [].concat([], ...indirectFollowLists);
-  const indirectFollowMap = new Map();
-  
-  const directFollowIds = new Set(directFollows.map(({ acct }) => acct));
-  directFollowIds.add(handle.replace(/^@/, ''));
-
-  indirectFollows.filter(
-    // exclude direct follows
-    ({ acct }) => !directFollowIds.has(acct)
-  ).map(account => {
-    const acct = account.acct;
-    if (indirectFollowMap.has(acct)) {
-      const otherAccount = indirectFollowMap.get(acct);
-      account.followed_by = [...account.followed_by, ...otherAccount.followed_by];
-    }
-    indirectFollowMap.set(acct, account);
-  });
-
-  return Array.from(indirectFollowMap.values()).sort((a, b) => {
-    if (a.followed_by.length != b.followed_by.length) {
-      return b.followed_by.length - a.followed_by.length;
-    }
-    return b.followers_count - a.followers_count;
-  });
+  updateList.flush();
 }
 
 function getNextPage(linkHeader: string | null): string | null {
@@ -123,13 +133,11 @@ function getNextPage(linkHeader: string | null): string | null {
 
 export function Content({ }) {
   const [handle, setHandle] = useState("");
-  const [follows, setfollows] = useState<Array<AccountDetails>>([]);
+  const [follows, setFollows] = useState<Array<AccountDetails>>([]);
   const [isLoading, setLoading] = useState(false);
   const [isDone, setDone] = useState(false);
   const [domain, setDomain] = useState<string>("");
   const [[numLoaded, totalToLoad], setProgress] = useState<Array<number>>([0, 0]);
-
-  console.log(follows.length);
 
   async function search(handle: string) {
     if (!/@/.test(handle)) {
@@ -137,7 +145,7 @@ export function Content({ }) {
     }
     setLoading(true);
     setDomain(getDomain(handle));
-    setfollows(await accountFofs(handle, setProgress));
+    await accountFofs(handle, setProgress, setFollows);
     setLoading(false);
     setDone(true);
   }
@@ -170,8 +178,8 @@ export function Content({ }) {
         " id="mastodonHandle"
             aria-describedby="mastodonHandleHelp" placeholder="johnmastodon@mas.to" />
           <small id="mastodonHandleHelp" className="block mt-1 text-xs text-gray-600 dark:text-gray-300">Be sure to include the full handle, including the domain.</small>
-        
-        <button type="submit" className="
+
+          <button type="submit" className="
       px-6
       py-2.5
       bg-green-600
@@ -188,20 +196,20 @@ export function Content({ }) {
       transition
       duration-150
       ease-in-out">
-          Search
-          {isLoading ?
-            <svg className="w-4 h-4 ml-2 fill-white animate-spin inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">{/*! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. */}<path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg>
-          : null}
+            Search
+            {isLoading ?
+              <svg className="w-4 h-4 ml-2 fill-white animate-spin inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">{/*! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. */}<path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z" /></svg>
+              : null}
           </button>
-          
-      {isLoading ?
-        <p className="text-sm dark:text-gray-400">Loaded {numLoaded} of {totalToLoad}...</p>
-      : null}
+
+          {isLoading ?
+            <p className="text-sm dark:text-gray-400">Loaded {numLoaded} of {totalToLoad}...</p>
+            : null}
         </div>
       </form>
-    
-      
-      {isDone ?
+
+
+      {isDone || follows.length > 0 ?
         <div className="flex-col lg:flex items-center justify-center">
           <div className="max-w-4xl content-center px-2 sm:px-8 py-4 bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
             <div className="flow-root">
@@ -210,9 +218,9 @@ export function Content({ }) {
               </ul>
             </div>
           </div>
-          </div>
+        </div>
         : null}
-      </div>
+    </div>
   </section>;
 }
 
@@ -220,8 +228,7 @@ function AccountDetails({ account, mainDomain }) {
   const { avatar_static, display_name, acct, note, followers_count, followed_by } = account;
   let formatter = Intl.NumberFormat('en', { notation: 'compact' });
   let numFollowers = formatter.format(followers_count);
-  console.log(account);
-  
+
   return (
     <li className="py-3 sm:py-4">
       <div className="flex flex-col sm:flex-row items-center space-x-4">
