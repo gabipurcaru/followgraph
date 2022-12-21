@@ -6,7 +6,7 @@ import { updateCommaList } from "typescript";
 type AccountDetails = {
   id: string, // IMPORTANT: this is int64 so will overflow Javascript's number type
   acct: string,
-  followed_by: Array<string>, // list of handles
+  followed_by: Set<string>, // list of handles
 };
 
 async function usernameToId(handle: string): Promise<{ id: number, domain: string }> {
@@ -88,14 +88,14 @@ async function accountFofs(handle: string, setProgress: (x: Array<number>) => vo
       const acct = account.acct;
       if (indirectFollowMap.has(acct)) {
         const otherAccount = indirectFollowMap.get(acct);
-        account.followed_by = [...account.followed_by, ...otherAccount.followed_by];
+        account.followed_by = new Set([...account.followed_by, ...otherAccount.followed_by]);
       }
       indirectFollowMap.set(acct, account);
     });
 
     const list = Array.from(indirectFollowMap.values()).sort((a, b) => {
-      if (a.followed_by.length != b.followed_by.length) {
-        return b.followed_by.length - a.followed_by.length;
+      if (a.followed_by.size != b.followed_by.size) {
+        return b.followed_by.size - a.followed_by.size;
       }
       return b.followers_count - a.followers_count;
     });
@@ -109,7 +109,7 @@ async function accountFofs(handle: string, setProgress: (x: Array<number>) => vo
         const follows = await accountFollows(acct);
         progress++;
         setProgress([progress, directFollows.length]);
-        indirectFollowLists.push(follows.map(account => ({ ...account, followed_by: [acct] })));
+        indirectFollowLists.push(follows.map(account => ({ ...account, followed_by: new Set([acct]) })));
         updateList();
       }
     ),
@@ -146,6 +146,7 @@ export function Content({ }) {
     setLoading(true);
     setDone(false);
     setFollows([]);
+    setProgress([0, 0]);
     setDomain(getDomain(handle));
     await accountFofs(handle, setProgress, setFollows);
     setLoading(false);
@@ -242,6 +243,8 @@ function AccountDetails({ account, mainDomain }) {
   let formatter = Intl.NumberFormat('en', { notation: 'compact' });
   let numFollowers = formatter.format(followers_count);
 
+  const [expandedFollowers, setExpandedFollowers] = useState(false);
+
   return (
     <li className="py-3 sm:py-4">
       <div className="flex flex-col sm:flex-row items-center space-x-4">
@@ -260,9 +263,14 @@ function AccountDetails({ account, mainDomain }) {
           <br />
           <small className="text-xs text-gray-800 dark:text-gray-400">
             Followed by{' '}
-            {followed_by.map((handle, idx) => (
-              <><span className="font-semibold">{handle.replace(/@.+/, '')}</span>{idx === followed_by.length - 1 ? '' : ', '}</>
-            ))}
+            {followed_by.size < 9 || expandedFollowers ?
+
+              Array.from(followed_by.values()).map((handle, idx) => (
+                <><span className="font-semibold">{handle.replace(/@.+/, '')}</span>{idx === followed_by.size - 1 ? '.' : ', '}</>
+              ))
+              : <>
+                <button onClick={setExpandedFollowers} className="font-semibold">{followed_by.size} of your contacts</button>.
+              </>}
           </small>
         </div>
         <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white my-4 sm:my-0">
