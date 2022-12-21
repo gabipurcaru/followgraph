@@ -304,7 +304,7 @@ function AccountDetails({ account, mainDomain }) {
 function ErrorLog({ errors }: { errors: Array<string> }) {
   const [expanded, setExpanded] = useState(false);
   return (<>
-    {errors.length > 0 ? <div className="text-sm text-gray-600 lg:ml-12 border border-solid border-gray-200 rounded p-4">
+    {errors.length > 0 ? <div className="text-sm text-gray-600 dark:text-gray-200 lg:ml-12 border border-solid border-gray-200 dark:border-gray-700 rounded p-4">
       Found <button className="font-bold" onClick={() => setExpanded(!expanded)}>{errors.length} warnings</button>{expanded ? ':' : '.'}
       {expanded ? errors.map(err => <p key={err} className="text-xs">{err}</p>) : null}
     </div> : null}
