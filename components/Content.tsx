@@ -28,7 +28,7 @@ function getDomain(handle: string) {
   return domain;
 }
 
-async function accountFollows(handle: string): Promise<Array<AccountDetails>> {
+async function accountFollows(handle: string, limit: number = 200): Promise<Array<AccountDetails>> {
   let id, domain: string;
   try {
     ({ id, domain } = await usernameToId(handle));
@@ -38,7 +38,7 @@ async function accountFollows(handle: string): Promise<Array<AccountDetails>> {
 
   let nextPage: string | null = `https://${domain}/api/v1/accounts/${id}/following`;
   let data: Array<AccountDetails> = [];
-  while (nextPage && data.length <= 200) {
+  while (nextPage && data.length <= limit) {
     console.log(`Get page: ${nextPage}`);
     let response;
     let page;
@@ -67,7 +67,7 @@ async function accountFollows(handle: string): Promise<Array<AccountDetails>> {
 
 async function accountFofs(handle: string, setProgress: (x: Array<number>) => void): Promise<Array<AccountDetails>> {
   console.log('Start');
-  const directFollows = await accountFollows(handle);
+  const directFollows = await accountFollows(handle, 2000);
   setProgress([0, directFollows.length]);
   console.log(`Direct follows: ${directFollows.length}`);
   let progress = 0;
