@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import sanitizeHtml from 'sanitize-html';
 import debounce from 'debounce'
-import { updateCommaList } from "typescript";
-import { loadDefaultErrorComponents } from "next/dist/server/load-components";
 
 type AccountDetails = {
   id: string, // IMPORTANT: this is int64 so will overflow Javascript's number type
@@ -103,7 +101,7 @@ async function accountFofs(
       const acct = account.acct;
       if (indirectFollowMap.has(acct)) {
         const otherAccount = indirectFollowMap.get(acct);
-        account.followed_by = new Set([...account.followed_by, ...otherAccount.followed_by]);
+        account.followed_by = new Set([...Array.from(account.followed_by.values()), ...otherAccount.followed_by]);
       }
       indirectFollowMap.set(acct, account);
     });
@@ -285,11 +283,11 @@ function AccountDetails({ account, mainDomain }) {
             Followed by{' '}
             {followed_by.size < 9 || expandedFollowers ?
 
-              Array.from(followed_by.values()).map((handle, idx) => (
+              Array.from<string>(followed_by.values()).map((handle, idx) => (
                 <><span className="font-semibold">{handle.replace(/@.+/, '')}</span>{idx === followed_by.size - 1 ? '.' : ', '}</>
               ))
               : <>
-                <button onClick={setExpandedFollowers} className="font-semibold">{followed_by.size} of your contacts</button>.
+                <button onClick={() => setExpandedFollowers(true)} className="font-semibold">{followed_by.size} of your contacts</button>.
               </>}
           </small>
         </div>
