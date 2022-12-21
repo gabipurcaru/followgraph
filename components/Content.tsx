@@ -239,7 +239,7 @@ export function Content({ }) {
       </form>
 
 
-      {isDone && follows.length > 0 ?
+      {isDone || follows.length > 0 ?
         <div className="flex-col lg:flex items-center justify-center">
           <div className="max-w-4xl content-center px-2 sm:px-8 py-4 bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
             <div className="flow-root">
