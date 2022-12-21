@@ -21,8 +21,13 @@ export function FAQ({ }) {
           </FAQItem>
 
           <FAQItem title="Why don't I see any results?">
-            This tool only works if your list of follows is public. If you&apos;ve opted to hide your social graph, you will not see
-            any results here.
+            There could be a few reasons:
+            <ul className="list-disc ml-4">
+              <li>This tool only works if your list of follows is public. If you&apos;ve opted to hide your social graph, you will not see
+                any results here.</li>
+              <li>Due to the high volume of requests, sometimes Mastodon throttles this tool. If that&apos;s the case, try again a bit later.</li>
+              <li>Make sure you have no typos in the Mastodon handle, and make sure you follow at least a few people to seed the search.</li>
+            </ul>
           </FAQItem>
 
           <FAQItem title="How can I contribute with suggestions?">
@@ -38,7 +43,7 @@ export function FAQ({ }) {
   </section>;
 }
 
-function FAQItem({ defaultSelected, title, children }: { defaultSelected?: boolean, title: string, children: React.ReactNode}) {
+function FAQItem({ defaultSelected, title, children }: { defaultSelected?: boolean, title: string, children: React.ReactNode }) {
   const [selected, setSelected] = useState(defaultSelected);
   return (<>
     <h3 id="accordion-flush-heading-1">

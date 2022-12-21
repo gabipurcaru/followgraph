@@ -144,6 +144,8 @@ export function Content({ }) {
       return;
     }
     setLoading(true);
+    setDone(false);
+    setFollows([]);
     setDomain(getDomain(handle));
     await accountFofs(handle, setProgress, setFollows);
     setLoading(false);
@@ -205,11 +207,22 @@ export function Content({ }) {
           {isLoading ?
             <p className="text-sm dark:text-gray-400">Loaded {numLoaded} of {totalToLoad}...</p>
             : null}
+          {isDone && follows.length === 0 ?
+            <div className="flex p-4 mt-4 max-w-full sm:max-w-xl text-sm text-gray-700 bg-gray-100 rounded-lg dark:bg-gray-700 dark:text-gray-300" role="alert">
+              <svg aria-hidden="true" className="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+              <span className="sr-only">Info</span>
+              <div>
+                <span className="font-medium">No results found.</span> Please double check for typos in the handle, and ensure that you follow at least a few people
+                to seed the search. Otherwise, try again later as Mastodon may throttle requests.
+              </div>
+            </div>
+            : null}
         </div>
+
       </form>
 
 
-      {isDone || follows.length > 0 ?
+      {isDone && follows.length > 0 ?
         <div className="flex-col lg:flex items-center justify-center">
           <div className="max-w-4xl content-center px-2 sm:px-8 py-4 bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
             <div className="flow-root">
