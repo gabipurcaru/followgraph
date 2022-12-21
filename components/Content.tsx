@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import sanitizeHtml from 'sanitize-html';
 import debounce from 'debounce'
 import { updateCommaList } from "typescript";
+import { loadDefaultErrorComponents } from "next/dist/server/load-components";
 
 type AccountDetails = {
   id: string, // IMPORTANT: this is int64 so will overflow Javascript's number type
@@ -17,6 +18,9 @@ async function usernameToId(handle: string): Promise<{ id: number, domain: strin
   const domain = match[2];
   const username = match[1];
   let response = await fetch(`https://${domain}/api/v1/accounts/lookup?acct=${username}`);
+  if (response.status !== 200) {
+    throw new Error('HTTP request failed');
+  }
   const { id } = await response.json();
   return { id, domain };
 }
@@ -30,11 +34,12 @@ function getDomain(handle: string) {
   return domain;
 }
 
-async function accountFollows(handle: string, limit: number = 200): Promise<Array<AccountDetails>> {
+async function accountFollows(handle: string, limit: number, logError: (x: string) => void): Promise<Array<AccountDetails>> {
   let id, domain: string;
   try {
     ({ id, domain } = await usernameToId(handle));
   } catch (e) {
+    logError(`Cannot find handle ${handle}.`);
     return [];
   }
 
@@ -46,9 +51,14 @@ async function accountFollows(handle: string, limit: number = 200): Promise<Arra
     let page;
     try {
       response = await fetch(nextPage);
+      if (response.status !== 200) {
+        throw new Error('HTTP request failed');
+      }
       page = await response.json();
+      console.log(response.statusText);
     } catch (e) {
-      console.log(e);
+      logError(`Error while retrieving followers for ${handle}.`)
+      console.log('eeeee', e);
       break;
     }
     if (!page.map) {
@@ -67,8 +77,13 @@ async function accountFollows(handle: string, limit: number = 200): Promise<Arra
   return data;
 }
 
-async function accountFofs(handle: string, setProgress: (x: Array<number>) => void, setFollows: (x: Array<AccountDetails>) => void): Promise<void> {
-  const directFollows = await accountFollows(handle, 2000);
+async function accountFofs(
+  handle: string,
+  setProgress: (x: Array<number>) => void,
+  setFollows: (x: Array<AccountDetails>) => void,
+  logError: (x: string) => void
+): Promise<void> {
+  const directFollows = await accountFollows(handle, 2000, logError);
   setProgress([0, directFollows.length]);
   let progress = 0;
 
@@ -106,7 +121,7 @@ async function accountFofs(handle: string, setProgress: (x: Array<number>) => vo
   await Promise.all(
     directFollows.map(
       async ({ acct }) => {
-        const follows = await accountFollows(acct);
+        const follows = await accountFollows(acct, 200, logError);
         progress++;
         setProgress([progress, directFollows.length]);
         indirectFollowLists.push(follows.map(account => ({ ...account, followed_by: new Set([acct]) })));
@@ -138,17 +153,19 @@ export function Content({ }) {
   const [isDone, setDone] = useState(false);
   const [domain, setDomain] = useState<string>("");
   const [[numLoaded, totalToLoad], setProgress] = useState<Array<number>>([0, 0]);
+  const [errors, setErrors] = useState<Array<string>>([]);
 
   async function search(handle: string) {
     if (!/@/.test(handle)) {
       return;
     }
+    setErrors([]);
     setLoading(true);
     setDone(false);
     setFollows([]);
     setProgress([0, 0]);
     setDomain(getDomain(handle));
-    await accountFofs(handle, setProgress, setFollows);
+    await accountFofs(handle, setProgress, setFollows, error => setErrors(e => [...e, error]));
     setLoading(false);
     setDone(true);
   }
@@ -208,6 +225,7 @@ export function Content({ }) {
           {isLoading ?
             <p className="text-sm dark:text-gray-400">Loaded {numLoaded} of {totalToLoad}...</p>
             : null}
+
           {isDone && follows.length === 0 ?
             <div className="flex p-4 mt-4 max-w-full sm:max-w-xl text-sm text-gray-700 bg-gray-100 rounded-lg dark:bg-gray-700 dark:text-gray-300" role="alert">
               <svg aria-hidden="true" className="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
@@ -234,6 +252,8 @@ export function Content({ }) {
           </div>
         </div>
         : null}
+
+      <ErrorLog errors={errors} />
     </div>
   </section>;
 }
@@ -281,4 +301,14 @@ function AccountDetails({ account, mainDomain }) {
       </div>
     </li>
   );
+}
+
+function ErrorLog({ errors }: { errors: Array<string> }) {
+  const [expanded, setExpanded] = useState(false);
+  return (<>
+    {errors.length > 0 ? <div className="text-sm text-gray-600 lg:ml-12 border border-solid border-gray-200 rounded p-4">
+      Found <button className="font-bold" onClick={() => setExpanded(!expanded)}>{errors.length} warnings</button>{expanded ? ':' : '.'}
+      {expanded ? errors.map(err => <p key={err} className="text-xs">{err}</p>) : null}
+    </div> : null}
+  </>);
 }
