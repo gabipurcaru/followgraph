@@ -292,7 +292,7 @@ function AccountDetails({ account, mainDomain }) {
           </small>
         </div>
         <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white my-4 sm:my-0">
-          <a href={`https://${mainDomain}/@${acct}`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" target="_blank" rel="noreferrer">
+          <a href={`https://${mainDomain}/@${acct.replace('@'+mainDomain, '')}`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" target="_blank" rel="noreferrer">
             Follow
           </a>
         </div>
