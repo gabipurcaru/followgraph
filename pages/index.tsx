@@ -10,7 +10,7 @@ export default function Home() {
     <>
       <Head>
         <title>Followgraph for Mastodon</title>
-        <meta name="description" content="Find people to follow by expanding your follow graph." />
+        <meta name="description" content="Find people to follow on Mastodon by expanding your follow graph." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
