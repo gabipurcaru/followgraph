@@ -4,7 +4,7 @@ import debounce from 'debounce'
 
 type AccountDetails = {
   id: string // IMPORTANT: this is int64 so will overflow Javascript's number type
-  acct: string
+  acct: string,
   followed_by: Set<string> // list of handles
 }
 
