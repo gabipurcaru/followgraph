@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: Run Prettier
 
 on:
   pull_request:
