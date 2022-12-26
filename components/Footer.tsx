@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import React from 'react'
 export default function Footer({}) {
   return (
@@ -7,33 +8,39 @@ export default function Footer({}) {
         <div className="text-center">
           <div className="mb-5 lg:text-2xl font-semibold text-gray-700 dark:text-white text-lg">
             Followgraph for Mastodon, built by&nbsp;{' '}
-            <a
+            <Link
               href="https://mastodon.online/@gabipurcaru"
               target="_blank"
               rel="noreferrer"
               className="font-bold text-gray-900 dark:text-gray-400"
             >
               @gabipurcaru@mastodon.online
-            </a>
-            .
+            </Link>
+            .<br />
+            <Link
+              href="/donate"
+              className="font-bold text-gray-900 dark:text-gray-400"
+            >
+              Donate
+            </Link>
           </div>
           <span className="block text-sm text-center text-gray-500 dark:text-gray-400">
             Built with{' '}
-            <a
+            <Link
               href="https://flowbite.com"
               className="text-purple-600 hover:underline dark:text-purple-500"
               rel="nofollow noopener noreferrer"
             >
               Flowbite
-            </a>{' '}
+            </Link>{' '}
             and{' '}
-            <a
+            <Link
               href="https://tailwindcss.com"
               className="text-purple-600 hover:underline dark:text-purple-500"
               rel="nofollow noopener noreferrer"
             >
               Tailwind CSS
-            </a>
+            </Link>
             .
           </span>
         </div>
