@@ -22,6 +22,7 @@ export default function Footer({}) {
             <a
               href="https://flowbite.com"
               className="text-purple-600 hover:underline dark:text-purple-500"
+              rel="nofollow noopener noreferrer"
             >
               Flowbite
             </a>{' '}
@@ -29,6 +30,7 @@ export default function Footer({}) {
             <a
               href="https://tailwindcss.com"
               className="text-purple-600 hover:underline dark:text-purple-500"
+              rel="nofollow noopener noreferrer"
             >
               Tailwind CSS
             </a>
