@@ -16,14 +16,15 @@ export function FAQ({}) {
             data-active-classes="bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
             data-inactive-classes="text-gray-500 dark:text-gray-400"
           >
-            <FAQItem defaultSelected title="How does this work?">
-              The tool looks up all the people you follow, and then the people{' '}
+            <FAQItem defaultSelected title="How does Followgraph for Mastodon work?">
+              Followgraph looks up all the people you follow on Mastodon, and then the people{' '}
               <em>they</em> follow. Then it sorts them by the number of mutuals,
-              or otherwise by how popular those accounts are.
+              or otherwise by how popular those accounts are.<br />
+              It then shows the list with Mastodon links to follow them.
             </FAQItem>
 
-            <FAQItem title="Do I need to grant the app any permissions?">
-              Not at all! This app uses public APIs to fetch potential people
+            <FAQItem title="Do I need to grant Followgraph any permissions?">
+              Not at all! Followgraph uses public APIs to fetch potential people
               you can follow on Mastodon. In fact, it only does inauthenticated
               network requests to various Mastodon instances.
             </FAQItem>
@@ -39,9 +40,9 @@ export function FAQ({}) {
               There could be a few reasons:
               <ul className="list-disc ml-4">
                 <li>
-                  This tool only works if your list of follows is public. If
-                  you&apos;ve opted to hide your social graph, you will not see
-                  any results here.
+                  Followgraph only works if your list of follows is public. If
+                  you&apos;ve opted to hide your social graph in your Mastodon preferences,
+                  you will not see any results here.
                 </li>
                 <li>
                   Due to the high volume of requests, sometimes Mastodon
