@@ -1,4 +1,6 @@
+import Link from 'next/link'
 import React from 'react'
+
 export default function Header() {
   return (
     <header className="fixed w-full">
@@ -25,9 +27,9 @@ export default function Header() {
     </header>
   )
 
-  function Logo({}) {
+  function Logo({ }) {
     return (
-      <a href="#" className="flex items-center">
+      <Link href="/" className="flex items-center">
         <svg
           className="w-12 h-12 mr-4 dark:fill-white"
           xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +45,7 @@ export default function Header() {
         <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
           Followgraph for Mastodon
         </span>
-      </a>
+      </Link>
     )
   }
 }
