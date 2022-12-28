@@ -364,9 +364,11 @@ function AccountDetails({ account, mainDomain }) {
           <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
             {display_name}
           </p>
-          <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-            {acct} | {numFollowers} followers
-          </p>
+          <div className="flex flex-col sm:flex-row text-sm text-gray-500 dark:text-gray-400">
+            <span className="truncate">{acct}</span>
+            <span className="sm:inline hidden whitespace-pre"> | </span>
+            <span>{numFollowers} followers</span>
+          </div>
           <br />
           <small
             className="text-sm dark:text-gray-200"
