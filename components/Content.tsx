@@ -381,12 +381,12 @@ function AccountDetails({ account, mainDomain }) {
             Followed by{' '}
             {followed_by.size < 9 || expandedFollowers ? (
               Array.from<string>(followed_by.values()).map((handle, idx) => (
-                <>
+                <React.Fragment key={handle}>
                   <span className="font-semibold">
                     {handle.replace(/@.+/, '')}
                   </span>
                   {idx === followed_by.size - 1 ? '.' : ', '}
-                </>
+                </React.Fragment>
               ))
             ) : (
               <>
