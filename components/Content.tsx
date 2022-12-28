@@ -197,7 +197,7 @@ export function Content({}) {
 
   return (
     <section className="bg-gray-50 dark:bg-gray-800" id="searchForm">
-      <div className="px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6">
+      <div className="px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 max-w-screen-xl">
         <form
           onSubmit={(e) => {
             search(handle)
@@ -205,7 +205,7 @@ export function Content({}) {
             return false
           }}
         >
-          <div className="form-group mb-6  text-4xl lg:ml-16">
+          <div className="form-group mb-6 text-4xl lg:ml-16">
             <label
               htmlFor="mastodonHandle"
               className="form-label inline-block mb-2 text-gray-700 dark:text-gray-200"
@@ -424,7 +424,7 @@ function ErrorLog({ errors }: { errors: Array<string> }) {
   return (
     <>
       {errors.length > 0 ? (
-        <div className="text-sm text-gray-600 dark:text-gray-200 lg:ml-12 border border-solid border-gray-200 dark:border-gray-700 rounded p-4">
+        <div className="text-sm text-gray-600 dark:text-gray-200 border border-solid border-gray-200 dark:border-gray-700 rounded p-4 max-w-4xl mx-auto">
           Found{' '}
           <button className="font-bold" onClick={() => setExpanded(!expanded)}>
             {errors.length} warnings
