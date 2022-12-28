@@ -355,9 +355,10 @@ function AccountDetails({ account, mainDomain }) {
   const [expandedFollowers, setExpandedFollowers] = useState(false)
 
   return (
-    <li className="py-3 sm:py-4">
-      <div className="flex flex-col sm:flex-row items-center space-x-4">
-        <div className="flex-shrink-0">
+    <li className="px-4 py-3 pb-7 sm:px-0 sm:py-4">
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="flex-shrink-0 m-auto">
+
           <img
             className="w-16 h-16 sm:w-8 sm:h-8 rounded-full"
             src={avatar_static}
@@ -368,9 +369,11 @@ function AccountDetails({ account, mainDomain }) {
           <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
             {display_name}
           </p>
-          <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-            {acct} | {numFollowers} followers
-          </p>
+          <div className="flex flex-col sm:flex-row text-sm text-gray-500 dark:text-gray-400">
+            <span className="truncate">{acct}</span>
+            <span className="sm:inline hidden whitespace-pre"> | </span>
+            <span>{numFollowers} followers</span>
+          </div>
           <br />
           <small
             className="text-sm dark:text-gray-200"
@@ -401,7 +404,7 @@ function AccountDetails({ account, mainDomain }) {
             )}
           </small>
         </div>
-        <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white my-4 sm:my-0">
+        <div className="inline-flex m-auto text-base font-semibold text-gray-900 dark:text-white">
           <a
             href={`https://${mainDomain}/@${acct.replace(
               '@' + mainDomain,
