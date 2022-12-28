@@ -3,14 +3,19 @@ import sanitizeHtml from 'sanitize-html'
 import debounce from 'debounce'
 
 type AccountDetails = {
-  id: string // IMPORTANT: this is int64 so will overflow Javascript's number type
+  /**
+   * // IMPORTANT
+   * Mastodon uses int64 so will overflow Javascript's number type
+   * Pleroma uses 128-bit ids. However just like Mastodon's ids they are lexically sortable strings
+   */
+  id: string
   acct: string
   followed_by: Set<string> // list of handles
 }
 
 async function usernameToId(
   handle: string
-): Promise<{ id: number; domain: string }> {
+): Promise<{ id: string; domain: string }> {
   const match = handle.match(/^(.+)@(.+)$/)
   if (!match || match.length < 2) {
     throw new Error(`Incorrect handle: ${handle}`)
