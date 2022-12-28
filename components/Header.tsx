@@ -1,5 +1,7 @@
+import Link from 'next/link'
 import React from 'react'
-export default function Header() {
+
+export default function Header({ selected }: { selected: 'home' | 'donate' }) {
   return (
     <header className="fixed w-full">
       <nav className="bg-white border-gray-200 py-2.5 dark:bg-gray-900">
@@ -11,10 +13,13 @@ export default function Header() {
             id="mobile-menu-2"
           >
             <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-              <MenuItem link="#" selected>
+              <MenuItem link="/" selected={selected == 'home'}>
                 Home
               </MenuItem>
-              <MenuItem link="#faq">FAQ</MenuItem>
+              <MenuItem link="/#faq">FAQ</MenuItem>
+              <MenuItem link="/donate" selected={selected == 'donate'}>
+                Donate
+              </MenuItem>
               <MenuItem link="https://github.com/gabipurcaru/followgraph">
                 Fork me on GitHub
               </MenuItem>
@@ -27,7 +32,7 @@ export default function Header() {
 
   function Logo({}) {
     return (
-      <a href="#" className="flex items-center">
+      <Link href="/" className="flex items-center">
         <svg
           className="w-12 h-12 mr-4 dark:fill-white"
           xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +48,7 @@ export default function Header() {
         <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
           Followgraph for Mastodon
         </span>
-      </a>
+      </Link>
     )
   }
 }
@@ -60,20 +65,20 @@ function MenuItem({
   return (
     <li>
       {selected ? (
-        <a
+        <Link
           href={link}
           className="block py-2 pl-3 pr-4 text-white bg-purple-700 rounded lg:bg-transparent lg:text-purple-700 lg:p-0 dark:text-white"
           aria-current="page"
         >
           {children}
-        </a>
+        </Link>
       ) : (
-        <a
+        <Link
           href={link}
           className="block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-purple-700 lg:p-0 dark:text-gray-300 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
         >
           {children}
-        </a>
+        </Link>
       )}
     </li>
   )
