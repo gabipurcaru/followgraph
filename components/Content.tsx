@@ -11,6 +11,7 @@ type AccountDetails = {
   id: string
   acct: string
   followed_by: Set<string> // list of handles
+  discoverable: boolean
 }
 
 async function usernameToId(
@@ -68,10 +69,8 @@ async function accountFollows(
         throw new Error('HTTP request failed')
       }
       page = await response.json()
-      console.log(response.statusText)
     } catch (e) {
       logError(`Error while retrieving followers for ${handle}.`)
-      console.log('eeeee', e)
       break
     }
     if (!page.map) {
@@ -114,8 +113,8 @@ async function accountFofs(
 
     indirectFollows
       .filter(
-        // exclude direct follows
-        ({ acct }) => !directFollowIds.has(acct)
+        // exclude direct follows and accounts who choose not to be discovered
+        ({ acct, discoverable }) => !directFollowIds.has(acct) && discoverable
       )
       .map((account) => {
         const acct = account.acct
