@@ -17,15 +17,15 @@ export default function Footer({}) {
               @gabipurcaru@mastodon.online
             </Link>
             .<br />
-            <span className='text-sm font-bold text-gray-900 dark:text-gray-400 '>
-            <Link href="/privacy" className="underline">Privacy</Link> | {' '}
-            <Link
-              href="/donate"
-              className="underline"
-            >
-              Donate
+            <span className="text-sm font-bold text-gray-900 dark:text-gray-400 ">
+              <Link href="/privacy" className="underline">
+                Privacy
+              </Link>{' '}
+              |{' '}
+              <Link href="/donate" className="underline">
+                Donate
               </Link>
-              </span>
+            </span>
           </div>
           <span className="block text-sm text-center text-gray-500 dark:text-gray-400">
             Built with{' '}
