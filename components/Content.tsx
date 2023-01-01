@@ -357,7 +357,6 @@ function AccountDetails({ account, mainDomain }) {
     <li className="px-4 py-3 pb-7 sm:px-0 sm:py-4">
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="flex-shrink-0 m-auto">
-
           <img
             className="w-16 h-16 sm:w-8 sm:h-8 rounded-full"
             src={avatar_static}
