@@ -71,8 +71,9 @@ export function FAQ({}) {
             </FAQItem>
 
             <FAQItem title="Can I download the list of accounts as CSV?">
-              While it would be a useful feature, Followgraph does <em>not</em> plan to offer this functionality
-              as it would facilitate inorganic and potentially malicious behaviour.
+              While it would be a useful feature, Followgraph does <em>not</em>{' '}
+              plan to offer this functionality as it would facilitate inorganic
+              and potentially malicious behaviour.
             </FAQItem>
           </div>
         </div>
