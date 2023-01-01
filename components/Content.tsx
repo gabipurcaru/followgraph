@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import { Spinner } from './Spinner'
+import React, { useState, memo, useRef } from 'react'
 import sanitizeHtml from 'sanitize-html'
 import debounce from 'debounce'
 
@@ -11,7 +12,11 @@ type AccountDetails = {
   id: string
   acct: string
   followed_by: Set<string> // list of handles
+  followers_count: number
   discoverable: boolean
+  display_name: string
+  note: string
+  avatar_static: string
 }
 
 async function usernameToId(
@@ -166,6 +171,23 @@ function getNextPage(linkHeader: string | null): string | null {
   return null
 }
 
+function matchesSearch(account: AccountDetails, search: string): boolean {
+  if (/^\s*$/.test(search)) {
+    return true
+  }
+  const sanitizedSearch = search.replace(/^\s+|\s+$/, '').toLocaleLowerCase()
+  if (account.acct.toLocaleLowerCase().includes(sanitizedSearch)) {
+    return true
+  }
+  if (account.display_name.toLocaleLowerCase().includes(sanitizedSearch)) {
+    return true
+  }
+  if (account.note.toLocaleLowerCase().includes(sanitizedSearch)) {
+    return true
+  }
+  return false
+}
+
 export function Content({}) {
   const [handle, setHandle] = useState('')
   const [follows, setFollows] = useState<Array<AccountDetails>>([])
@@ -264,16 +286,10 @@ export function Content({}) {
       ease-in-out"
             >
               Search
-              {isLoading ? (
-                <svg
-                  className="w-4 h-4 ml-2 fill-white animate-spin inline"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 512 512"
-                >
-                  {/*! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. */}
-                  <path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z" />
-                </svg>
-              ) : null}
+              <Spinner
+                visible={isLoading}
+                className="w-4 h-4 ml-2 fill-white"
+              />
             </button>
 
             {isLoading ? (
@@ -313,24 +329,7 @@ export function Content({}) {
         </form>
 
         {isDone || follows.length > 0 ? (
-          <div className="flex-col lg:flex items-center justify-center">
-            <div className="max-w-4xl content-center px-2 sm:px-8 py-4 bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
-              <div className="flow-root">
-                <ul
-                  role="list"
-                  className="divide-y divide-gray-200 dark:divide-gray-700"
-                >
-                  {follows.slice(0, 500).map((account) => (
-                    <AccountDetails
-                      key={account.acct}
-                      account={account}
-                      mainDomain={domain}
-                    />
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+          <Results follows={follows} domain={domain} />
         ) : null}
 
         <ErrorLog errors={errors} />
@@ -339,86 +338,96 @@ export function Content({}) {
   )
 }
 
-function AccountDetails({ account, mainDomain }) {
-  const {
-    avatar_static,
-    display_name,
-    acct,
-    note,
-    followers_count,
-    followed_by,
-  } = account
-  let formatter = Intl.NumberFormat('en', { notation: 'compact' })
-  let numFollowers = formatter.format(followers_count)
+const AccountDetails = memo(
+  ({
+    account,
+    mainDomain,
+  }: {
+    account: AccountDetails
+    mainDomain: string
+  }) => {
+    const {
+      avatar_static,
+      display_name,
+      acct,
+      note,
+      followers_count,
+      followed_by,
+    } = account
+    let formatter = Intl.NumberFormat('en', { notation: 'compact' })
+    let numFollowers = formatter.format(followers_count)
 
-  const [expandedFollowers, setExpandedFollowers] = useState(false)
+    const [expandedFollowers, setExpandedFollowers] = useState(false)
 
-  return (
-    <li className="px-4 py-3 pb-7 sm:px-0 sm:py-4">
-      <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="flex-shrink-0 m-auto">
-          <img
-            className="w-16 h-16 sm:w-8 sm:h-8 rounded-full"
-            src={avatar_static}
-            alt={display_name}
-          />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
-            {display_name}
-          </p>
-          <div className="flex flex-col sm:flex-row text-sm text-gray-500 dark:text-gray-400">
-            <span className="truncate">{acct}</span>
-            <span className="sm:inline hidden whitespace-pre"> | </span>
-            <span>{numFollowers} followers</span>
+    return (
+      <li className="px-4 py-3 pb-7 sm:px-0 sm:py-4">
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="flex-shrink-0 m-auto">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="w-16 h-16 sm:w-8 sm:h-8 rounded-full"
+              src={avatar_static}
+              alt={display_name}
+            />
           </div>
-          <br />
-          <small
-            className="text-sm dark:text-gray-200"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(note) }}
-          ></small>
-          <br />
-          <small className="text-xs text-gray-800 dark:text-gray-400">
-            Followed by{' '}
-            {followed_by.size < 9 || expandedFollowers ? (
-              Array.from<string>(followed_by.values()).map((handle, idx) => (
-                <React.Fragment key={handle}>
-                  <span className="font-semibold">
-                    {handle.replace(/@.+/, '')}
-                  </span>
-                  {idx === followed_by.size - 1 ? '.' : ', '}
-                </React.Fragment>
-              ))
-            ) : (
-              <>
-                <button
-                  onClick={() => setExpandedFollowers(true)}
-                  className="font-semibold"
-                >
-                  {followed_by.size} of your contacts
-                </button>
-                .
-              </>
-            )}
-          </small>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
+              {display_name}
+            </p>
+            <div className="flex flex-col sm:flex-row text-sm text-gray-500 dark:text-gray-400">
+              <span className="truncate">{acct}</span>
+              <span className="sm:inline hidden whitespace-pre"> | </span>
+              <span>{numFollowers} followers</span>
+            </div>
+            <br />
+            <small
+              className="text-sm dark:text-gray-200"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(note) }}
+            ></small>
+            <br />
+            <small className="text-xs text-gray-800 dark:text-gray-400">
+              Followed by{' '}
+              {followed_by.size < 9 || expandedFollowers ? (
+                Array.from<string>(followed_by.values()).map((handle, idx) => (
+                  <React.Fragment key={handle}>
+                    <span className="font-semibold">
+                      {handle.replace(/@.+/, '')}
+                    </span>
+                    {idx === followed_by.size - 1 ? '.' : ', '}
+                  </React.Fragment>
+                ))
+              ) : (
+                <>
+                  <button
+                    onClick={() => setExpandedFollowers(true)}
+                    className="font-semibold"
+                  >
+                    {followed_by.size} of your contacts
+                  </button>
+                  .
+                </>
+              )}
+            </small>
+          </div>
+          <div className="inline-flex m-auto text-base font-semibold text-gray-900 dark:text-white">
+            <a
+              href={`https://${mainDomain}/@${acct.replace(
+                '@' + mainDomain,
+                ''
+              )}`}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Follow
+            </a>
+          </div>
         </div>
-        <div className="inline-flex m-auto text-base font-semibold text-gray-900 dark:text-white">
-          <a
-            href={`https://${mainDomain}/@${acct.replace(
-              '@' + mainDomain,
-              ''
-            )}`}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Follow
-          </a>
-        </div>
-      </div>
-    </li>
-  )
-}
+      </li>
+    )
+  }
+)
+AccountDetails.displayName = 'AccountDetails'
 
 function ErrorLog({ errors }: { errors: Array<string> }) {
   const [expanded, setExpanded] = useState(false)
@@ -441,5 +450,101 @@ function ErrorLog({ errors }: { errors: Array<string> }) {
         </div>
       ) : null}
     </>
+  )
+}
+
+function Results({
+  domain,
+  follows,
+}: {
+  domain: string
+  follows: Array<AccountDetails>
+}) {
+  let [search, setSearch] = useState<string>('')
+  const [isLoading, setLoading] = useState(false)
+  const updateSearch = useRef(
+    debounce((s: string) => {
+      setLoading(false)
+      setSearch(s)
+    }, 1500)
+  ).current
+
+  follows = follows.filter((acc) => matchesSearch(acc, search)).slice(0, 500)
+
+  return (
+    <div className="flex-col lg:flex items-center justify-center">
+      <div className="max-w-4xl">
+        <div className="w-full mb-4 dark:text-gray-200">
+          <label>
+            <div className="mb-2">
+              <Spinner
+                visible={isLoading}
+                className="w-4 h-4 mr-1 fill-gray-400"
+              />
+              Search:
+            </div>
+            <SearchInput
+              onChange={(s) => {
+                setLoading(true)
+                updateSearch(s)
+              }}
+            />
+          </label>
+        </div>
+        <div className="content-center px-2 sm:px-8 py-4 bg-white border rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
+          <div className="flow-root">
+            {follows.length === 0 ? (
+              <p className="text-gray-700 dark:text-gray-200">
+                No results found.
+              </p>
+            ) : null}
+            <ul
+              role="list"
+              className="divide-y divide-gray-200 dark:divide-gray-700"
+            >
+              {follows.map((account) => (
+                <AccountDetails
+                  key={account.acct}
+                  account={account}
+                  mainDomain={domain}
+                />
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SearchInput({ onChange }: { onChange: (s: string) => void }) {
+  let [search, setSearchInputValue] = useState<string>('')
+  return (
+    <input
+      type="text"
+      placeholder="London"
+      value={search}
+      onChange={(e) => {
+        setSearchInputValue(e.target.value)
+        onChange(e.target.value)
+      }}
+      className="
+                form-control
+                block
+                w-80
+                px-3
+                py-1.5
+                text-base
+                font-normal
+                text-gray-700
+                bg-white bg-clip-padding
+                border border-solid border-gray-300
+                rounded
+                transition
+                ease-in-out
+                m-0
+                focus:text-gray-900 focus:bg-white focus:border-green-600 focus:outline-none
+                dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-gray-200 dark:focus:bg-gray-900 dark:focus:text-gray-200"
+    />
   )
 }
