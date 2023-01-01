@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import React from 'react'
 
-export default function Header({ selected }: { selected: 'home' | 'donate' }) {
+export default function Header({ selected }: { selected: 'home' | 'donate' | 'privacy' }) {
   return (
     <header className="fixed w-full">
       <nav className="bg-white border-gray-200 py-2.5 dark:bg-gray-900">
