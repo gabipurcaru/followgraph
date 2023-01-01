@@ -89,7 +89,7 @@ export default function Privacy() {
               https://vercel.com/legal/privacy-policy.
             </p>
 
-            <h2>Children's Information</h2>
+            <h2>Children&apos;s Information</h2>
 
             <p>
               Another part of our priority is adding protection for children
