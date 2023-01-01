@@ -466,7 +466,7 @@ function Results({
     debounce((s: string) => {
       setLoading(false)
       setSearch(s)
-    }, 100)
+    }, 1500)
   ).current
 
   follows = follows.filter((acc) => matchesSearch(acc, search)).slice(0, 500)
