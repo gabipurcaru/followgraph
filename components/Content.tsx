@@ -21,7 +21,7 @@ function matchesSearch(account: AccountDetails, search: string): boolean {
   return false
 }
 
-export function Content({ }) {
+export function Content({}) {
   const [handle, setHandle] = useState('')
   const [follows, setFollows] = useState<Array<AccountDetails>>([])
   const [isLoading, setLoading] = useState(false)
@@ -184,10 +184,10 @@ function ErrorLog({ errors }: { errors: Array<string> }) {
           {expanded ? ':' : '.'}
           {expanded
             ? errors.map((err) => (
-              <p key={err} className="text-xs">
-                {err}
-              </p>
-            ))
+                <p key={err} className="text-xs">
+                  {err}
+                </p>
+              ))
             : null}
         </div>
       ) : null}

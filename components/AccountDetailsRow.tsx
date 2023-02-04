@@ -1,21 +1,29 @@
-import React, { useState, memo } from 'react';
-import sanitizeHtml from 'sanitize-html';
-import { AccountDetails } from './api';
+import { AccountExpandedDetails } from './AccountExpandedDetails'
+import React, { useState, memo } from 'react'
+import sanitizeHtml from 'sanitize-html'
+import { AccountDetails } from './api'
 
 export const AccountDetailsRow = memo(
   ({
-    account, mainDomain,
+    account,
+    mainDomain,
   }: {
-    account: AccountDetails;
-    mainDomain: string;
+    account: AccountDetails
+    mainDomain: string
   }) => {
     const {
-      avatar_static, display_name, acct, note, followers_count, followed_by,
-    } = account;
-    let formatter = Intl.NumberFormat('en', { notation: 'compact' });
-    let numFollowers = formatter.format(followers_count);
+      avatar_static,
+      display_name,
+      acct,
+      note,
+      followers_count,
+      followed_by,
+    } = account
+    let formatter = Intl.NumberFormat('en', { notation: 'compact' })
+    let numFollowers = formatter.format(followers_count)
 
-    const [expandedFollowers, setExpandedFollowers] = useState(false);
+    const [expandedFollowers, setExpandedFollowers] = useState(false)
+    const [expandedDetails, setExpandedDetails] = useState(false)
 
     return (
       <li className="px-4 py-3 pb-7 sm:px-0 sm:py-4">
@@ -25,7 +33,8 @@ export const AccountDetailsRow = memo(
             <img
               className="w-16 h-16 sm:w-8 sm:h-8 rounded-full"
               src={avatar_static}
-              alt={display_name} />
+              alt={display_name}
+            />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 truncate dark:text-white">
@@ -64,6 +73,22 @@ export const AccountDetailsRow = memo(
                   .
                 </>
               )}
+              <br />
+              <button
+                onClick={() => setExpandedDetails((d) => !d)}
+                className="text-blue-500 hover:text-blue-700 fill-blue-500 hover:fill-blue-700 inline-block"
+              >
+                See more details
+                <svg
+                  className="w-3 h-3 inline ml-1 mb-0.5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                >
+                  {/* Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. */}
+                  <path d="M470.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 256 265.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160zm-352 160l160-160c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L210.7 256 73.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0z" />
+                </svg>
+              </button>
+              {expandedDetails && <AccountExpandedDetails account={account} />}
             </small>
           </div>
           <div className="inline-flex m-auto text-base font-semibold text-gray-900 dark:text-white">
@@ -81,7 +106,7 @@ export const AccountDetailsRow = memo(
           </div>
         </div>
       </li>
-    );
+    )
   }
-);
-AccountDetailsRow.displayName = 'AccountDetailsRow';
+)
+AccountDetailsRow.displayName = 'AccountDetailsRow'
