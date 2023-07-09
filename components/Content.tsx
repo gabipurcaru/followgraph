@@ -319,9 +319,14 @@ export function Content({}) {
                 <span className="sr-only">Info</span>
                 <div>
                   <span className="font-medium">No results found.</span> Please
-                  double check for typos in the handle, and ensure that you
-                  follow at least a few people to seed the search. Otherwise,
-                  try again later as Mastodon may throttle requests.
+                  check for the following:<br>
+                  - Your handle has no typos and has the right format
+                  (username@domain.tld)<br>
+                  - You follow at least 1 account<br>
+                  - The option "Hide your social Graph" in your Profile
+                  Settings ("Settings" -&gt; "Profile") is <b>disabled</b><br>
+                  <br>
+                  Otherwise, try again later as Mastodon may throttle requests.
                 </div>
               </div>
             ) : null}
